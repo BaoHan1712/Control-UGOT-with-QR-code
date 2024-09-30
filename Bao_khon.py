@@ -3,42 +3,11 @@ import time
 import cv2
 import numpy as np
 
-
-# Some constants that control the robot functionalities
-LEFT = 2 
-RIGHT = 3
-FORWARD = 0
-BACKWARD = 1
-BASE_HEIGHT = 4  # cm
-LOWER_HEIGHT = 3  # cm
-UPPER_HEIGHT = 7  # cm
-
-Pid_error = ugot.PID()
-Pid_error.set_pid(0.23,0,0)
-
 got = ugot.UGOT()
 got.initialize('192.168.100.159')
 got.open_camera()
 got.load_models(["apriltag_qrcode"])
 got.set_track_recognition_line(0)  # 0: mono line, 1: double line
-
-
-def follow_line_with_PID(target_time):
-    total_time = 0
-    delta_time = 0.015
-    speed = 5
-    while total_time < target_time:
-        # Get line segment offsets to update to PID controller
-        dic_pre_round = Pid_error.update(got.get_single_track_total_info()[0])
-        dic = round(dic_pre_round)
-        print(total_time)
-        if dic >= 0:
-            got.transform_move_turn(0, speed, 3, int(dic*0.5))
-        else:
-            got.transform_move_turn(0, speed, 2, int(abs(dic*0.5)))
-        
-        total_time += delta_time
-        time.sleep(delta_time)
 
 
 def rotate_image(image, angle):
@@ -51,7 +20,7 @@ def rotate_image(image, angle):
 qr_codes = []
 def qr_scan(index):
     start_time = time.time()
-    delay = 20
+    delay = 5
     angles = range(-50, 51, 5)  
     detector = cv2.QRCodeDetector()  
     
@@ -77,24 +46,11 @@ def qr_scan(index):
 
                         print(f"Tin hieu tram so {index}: {data_qr}")
                         got.screen_print_text_newline(f"Tin hieu tram so {index}: {data_qr}", 1)
-                        
-
-                        # if data_qr == '1':
-                        #     got.mecanum_move_speed_times(0,30,2,0)
-                        # elif data_qr == '2':
-                        #     got.mecanum_move_speed_times(1,30,2,0)
-                        # elif data_qr == '3':
-                        #     got.mecanum_turn_speed_times(2,60,3,0)
-                        # elif data_qr == '4':
-                        #     got.mecanum_turn_speed_times(3,60,3,0)
-
-
                         return data_qr
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break  
     cv2.destroyAllWindows()
-
 
 def action_qr_code():
     if qr_codes:  
@@ -104,47 +60,55 @@ def action_qr_code():
         for char in first_qr_code:
             if char == '1':
                 got.mecanum_move_speed_times(0,30,2,0)
-                time.sleep(1)
             elif char == '2':
                 got.mecanum_turn_speed_times(2,45,2,0)
-                time.sleep(1)
             elif char == '3':
-                print("đi ngang")
+                got.mecanum_turn_speed_times(2,60,3,0)
             elif char == '4':
-                print("đi lùi")
+                got.mecanum_turn_speed_times(3,60,3,0)
+
+            elif char == 'l':
+                got.mecanum_move_speed_times(1,30,2,0)
+                time.sleep(1)
+                got.mecanum_turn_speed_times(2,54,2,0)
+                time.sleep(1)
+                got.mecanum_move_speed_times(1,20,2,0)
+
+            elif char == 'o':
+                got.mecanum_move_speed_times(1,30,3,0)
+                time.sleep(1)
+                got.mecanum_turn_speed_times(2,53,2,0)
+                time.sleep(1)
+                got.mecanum_move_speed_times(1,30,2,0)
+                time.sleep(1)
+                got.mecanum_turn_speed_times(2,53,2,0)
+                time.sleep(1)
+                got.mecanum_move_speed_times(1,30,2,0)
+                time.sleep(1)
+                got.mecanum_turn_speed_times(2,52,2,0)
+                time.sleep(1)
+                got.mecanum_move_speed_times(1,30,2,0)
+                time.sleep(1)
+                got.mecanum_turn_speed_times(2,52,2,0)
+                time.sleep(1)
+                got.mecanum_move_speed_times(1,30,2,0)
             else:
+                got.screen_print_text_newline(f"Chưa biết ký tự: {char}",0)
                 print(f"Chưa biết ký tự: {char}")
 
     else:
+        got.screen_print_text_newline("Chưa có mã QR nào được quét.",0)
         print("Chưa có mã QR nào được quét.")
 
 
-action_queue = [
-
-(qr_scan, (1,)),
-(action_qr_code,())
-
-]
-
-
 while True:
-    # got.transform_set_chassis_height(3)
-    if len(action_queue) > 0:
-        current_action, parameters = action_queue.pop(0)
-    else:
-        got.transform_stop()
-        print("Tin hieu theo thu tu:", end=" ")
-        for i in qr_codes:
-            print(i, end="; ")
-        break
+    qr_code = qr_scan(1)  
     
-    if parameters is not None:
-        result = current_action(*parameters)
-    else:
-        result = current_action()
-        
-    print(current_action)
+    action_qr_code()
+    print(f"Processed QR code: {qr_code}")
 
+    time.sleep(1)
+    
     frame = got.read_camera_data()
     if frame is not None:
         nparr = np.frombuffer(frame, np.uint8)
