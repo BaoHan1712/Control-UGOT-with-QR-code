@@ -103,6 +103,28 @@
         input[type="submit"]:hover {
             background-color: #ff8f82;
         }
+
+        /* Style for instruction table */
+        .instruction-table {
+            margin-top: 20px;
+            border-collapse: collapse;
+            width: 50%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .instruction-table th, .instruction-table td {
+            border: 1px solid #ff6f61;
+            padding: 10px;
+            text-align: center;
+        }
+        .instruction-table th {
+            background-color: #ff6f61;
+            color: white;
+        }
+        .instruction-table td {
+            background-color: #fff;
+            color: black;
+        }
     </style>
 </head>
 <body>
@@ -113,6 +135,35 @@
         <input type="text" name="text" placeholder="Nhập nội dung QR Code" required>
         <input type="submit" value="Tạo QR Code">
     </form>
+
+    <!-- Instruction Table for Movements -->
+    <h2>Bảng mô tả ký tự</h2>
+    <table class="instruction-table">
+        <thead>
+            <tr>
+                <th>Ký tự</th>
+                <th>Mô tả</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>f</td>
+                <td>Tiến về phía trước (Forward)</td>
+            </tr>
+            <tr>
+                <td>b</td>
+                <td>Lùi về phía sau (Backward)</td>
+            </tr>
+            <tr>
+                <td>l</td>
+                <td>Quay trái 90 độ (Left 90°)</td>
+            </tr>
+            <tr>
+                <td>r</td>
+                <td>Quay phải 90 độ (Right 90°)</td>
+            </tr>
+        </tbody>
+    </table>
 
     <h2>Mẫu sẵn</h2>
     <div class="image-grid">
