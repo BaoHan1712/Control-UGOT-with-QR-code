@@ -11,3 +11,7 @@ Vd : Thôn tin trong mã qr là LOVE thì UGOT sẽ viết chữ love ra
 `pip install requirement.txt`
 
 Chạy file main.py
+
+<h2>Update</h2>
+
+Ở nhánh update
